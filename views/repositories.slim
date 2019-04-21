@@ -1,0 +1,6 @@
+div
+  a href='/' home
+h3= "#{@owner}'s repositories:"
+ul
+  - @repositories.each do |repo|
+    li: a href=path_to_repository(@owner, repo['name']) = repo['name']

@@ -1,0 +1,6 @@
+- unless flash_errors.nil? || flash_errors.empty?
+  div
+    p Errors:
+    ul
+      - flash_errors.each do |error|
+        li= error

@@ -1,0 +1,19 @@
+div
+  a href='/' home
+  | /
+  a href=path_to_repositories(@owner) repositories
+
+
+h3 Repository
+a target='_blank' href=@repository['url'] = @repository['name']
+
+p= @repository['createdAt']
+p= "Owner: #{@owner}"
+
+h3 Commits
+- @commits.each do |commit|
+  div
+    p=commit['message']
+    ul
+      li: a target='_blank' href=commit['url'] = commit['oid']
+      li: span=commit['committedDate']

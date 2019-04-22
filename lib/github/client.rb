@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+require 'typhoeus'
 require_relative 'response'
 
 module Github
@@ -17,11 +20,10 @@ module Github
     def repositories(owner:, last: 100)
       run <<~QUERY.strip
         query {
-          user(login:"#{owner}") {
-            repositories(last: #{last}) {
+          user(login: "#{owner}") {
+            repositories(last: #{last}, ownerAffiliations: OWNER) {
               nodes {
                 name
-                url
               }
             }
           }
@@ -35,7 +37,6 @@ module Github
           repository(owner:"#{owner}", name:"#{name}") {
             name
             createdAt
-            description
             url
             defaultBranchRef {
               target {
@@ -100,4 +101,3 @@ module Github
     end
   end
 end
-

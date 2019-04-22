@@ -14,5 +14,3 @@ services:
     stdin_open: true
     volumes:
       - .:/app
-    environment:
-      TERM: xterm

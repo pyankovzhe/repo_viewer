@@ -21,5 +21,4 @@ RUN apk del .build-dependencies
 
 ENV APP_ENV=production
 EXPOSE 4000
-
-CMD ["puma", "-p", "4000" ]
+CMD [ "bundle", "exec", "puma", "-p", "4000" ]

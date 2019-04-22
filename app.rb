@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 require 'sinatra/base'
-require_relative "lib/github/client"
+require 'sinatra/reloader'
+require_relative 'lib/github/client'
 
 class App < Sinatra::Base
   configure do
@@ -9,7 +12,11 @@ class App < Sinatra::Base
     enable :logging
     enable :sessions
 
-    set :github_client, Github::Client.new(ENV['API_ENDPOINT'], ENV['TOKEN'])
+    set :github, Github::Client.new(ENV['API_ENDPOINT'], ENV['TOKEN'])
+  end
+
+  configure :development do
+    register Sinatra::Reloader
   end
 
   get '/' do
@@ -27,25 +34,25 @@ class App < Sinatra::Base
 
   get '/:owner/repositories' do
     @owner = params['owner']
-    response = settings.github_client.repositories(owner: @owner)
+    response = settings.github.repositories(owner: @owner)
 
     if response.success?
-      @repositories = response.data.dig(*%w[user repositories nodes])
-      slim :repositories
+      @repositories = response.data.dig('user', 'repositories', 'nodes')
+      slim :'repositories/index'
     else
       flash :errors, response.errors
       redirect_to_root
     end
   end
 
-  get '/:owner/repositories/:repository' do
+  get '/:owner/repositories/:name' do
     @owner = params['owner']
-    response = settings.github_client.repository(owner: @owner, name: params['repository'])
+    response = settings.github.repository(owner: @owner, name: params['name'])
 
     if response.success?
-      @repository = response.data.fetch('repository', [])
-      @commits = @repository.dig(*%w[defaultBranchRef target history nodes])
-      slim :repository
+      @repo = response.data.fetch('repository', [])
+      @commits = @repo.dig('defaultBranchRef', 'target', 'history', 'nodes')
+      slim :'repositories/show'
     else
       flash :errors, response.errors
       redirect_to_root
@@ -55,12 +62,14 @@ class App < Sinatra::Base
   helpers do
     def flash(key, data)
       session[key] ||= []
-      session[key].push *data
+      session[key].push(*data)
     end
 
     def flash_errors
       return @flash_errors if defined? @flash_errors
-      @flash_errors, session[:errors] = session[:errors], nil
+
+      @flash_errors = session[:errors]
+      session[:errors] = nil
       @flash_errors
     end
 

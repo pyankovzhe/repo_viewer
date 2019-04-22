@@ -5,9 +5,10 @@ div
 
 
 h3 Repository
-a target='_blank' href=@repository['url'] = @repository['name']
+| Github:
+a target='_blank' href=@repo['url'] = @repo['name']
 
-p= @repository['createdAt']
+p= @repo['createdAt']
 p= "Owner: #{@owner}"
 
 h3 Commits

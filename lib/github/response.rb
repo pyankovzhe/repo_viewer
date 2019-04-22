@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Github
   class Response
     attr_reader :response
@@ -20,6 +22,7 @@ module Github
 
     def errors
       return response_errors unless response.success?
+
       query_errors.map { |e| e.fetch('message', 'Undefined error') }
     end
 
@@ -28,8 +31,9 @@ module Github
     end
 
     def response_errors
-      return [response.return_message] if response.code == 0
-      ["#{response.code} #{response.status_message} #{response.return_message}"]
+      return [response.return_message] if response.code.zero?
+
+      [response.code, response.status_message, response.return_message].compact.join(' ')
     end
 
     def query_errors
